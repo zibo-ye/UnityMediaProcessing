@@ -1,0 +1,6 @@
+[submodule "MediaProjectionLib"]
+	path = MediaProjectionLib
+	url = https://github.com/zibo-ye/MediaProjectionLib.git
+[submodule "QuestMediaProjection"]
+	path = QuestMediaProjection
+	url = https://github.com/zibo-ye/QuestMediaProjection.git

@@ -1,0 +1,289 @@
+# Unity Media Processing - MediaProjection + MediaCodec Video Recording
+
+A high-performance Unity Android plugin implementing hardware-accelerated screen recording using the MediaProjection API and MediaCodec with a zero-copy pipeline architecture.
+
+## 🎯 Project Overview
+
+This project implements a sophisticated video recording system for Unity Android applications that achieves maximum performance by delegating the entire recording workload to native Android components. The architecture ensures video frame data never enters the Unity C# environment, utilizing a direct GPU-to-encoder pipeline for optimal performance.
+
+## 🏗️ Architecture
+
+### Core Principle: Zero-Copy Pipeline
+The implementation follows this high-performance data flow:
+
+```
+MediaProjection → VirtualDisplay → MediaCodec Input Surface → Hardware Encoder → Encoded Buffer → MediaMuxer → MP4 File
+```
+
+### Key Architectural Decisions
+
+1. **Native Android Service**: All recording operations run in a background Android Service, independent of Unity's Activity lifecycle
+2. **Surface-to-Surface Connection**: Direct connection between VirtualDisplay output and MediaCodec input surface
+3. **Hardware Acceleration**: Utilizes GPU and hardware video encoders for maximum performance
+4. **Android 14+ Compatibility**: Implements proper foreground service with mediaProjection type
+
+## 📁 Project Structure
+
+```
+UnityMediaProcessing/
+├── MediaProjectionLib/          # Android library (forked from t-34400/MediaProjectionLib)
+│   └── app/src/main/java/com/t34400/mediaprojectionlib/
+│       ├── core/                # Original MediaProjection implementation
+│       └── recording/           # New video recording components
+│           ├── VideoRecordingManager.kt    # Core recording pipeline
+│           └── VideoRecordingService.kt    # Foreground service
+├── QuestMediaProjection/        # Unity project (forked from t-34400/QuestMediaProjection)
+│   └── Assets/MediaProjection/Scripts/
+│       ├── Interfaces/          # Service interfaces
+│       ├── Services/            # Service implementations
+│       └── ViewModels/          # UI ViewModels
+└── README.md                   # This file
+```
+
+## 🚀 Features
+
+### ✅ Implemented Features
+
+- **Hardware-Accelerated Recording**: Direct GPU-to-encoder pipeline with MediaCodec
+- **Zero-Copy Performance**: No frame data passes through Unity C# layer
+- **Android 14+ Compatible**: Proper foreground service implementation
+- **Background Recording**: Continues recording when app is backgrounded
+- **Multiple Quality Presets**: Default, High Quality, and Performance optimized
+- **Custom Configuration**: Full control over bitrate, frame rate, and output settings
+- **Real-time Notifications**: User-visible recording status and controls
+- **Error Handling**: Comprehensive error reporting and recovery
+- **Unity Integration**: Clean C# API with UnityEvent callbacks
+
+### 🎮 Unity C# API
+
+```csharp
+// Get the video recording service
+var recordingService = serviceContainer.VideoRecordingService;
+
+// Start recording with default settings
+recordingService.StartRecording();
+
+// Start with custom configuration
+var config = new VideoRecordingConfig
+{
+    videoBitrate = 8000000,    // 8 Mbps
+    videoFrameRate = 60,       // 60 fps
+    outputDirectory = "/custom/path"
+};
+recordingService.StartRecording(config);
+
+// Stop recording
+recordingService.StopRecording();
+
+// Event handling
+recordingService.OnRecordingComplete += (outputPath) => {
+    Debug.Log($"Recording saved to: {outputPath}");
+};
+```
+
+### 🎛️ Recording Presets
+
+| Preset | Bitrate | Frame Rate | Use Case |
+|--------|---------|------------|----------|
+| **Default** | 5 Mbps | 30 fps | Balanced quality/performance |
+| **High Quality** | 10 Mbps | 60 fps | Maximum quality recordings |
+| **Performance** | 2 Mbps | 30 fps | Longer recordings, lower storage |
+| **Custom** | User-defined | User-defined | Full control |
+
+## 🔧 Implementation Details
+
+### Android Components
+
+#### VideoRecordingManager
+- **Zero-copy pipeline implementation**
+- MediaCodec hardware encoder setup with H.264
+- VirtualDisplay with direct surface connection
+- Background thread processing for optimal performance
+- MediaMuxer integration for MP4 output
+- Comprehensive error handling and resource cleanup
+
+#### VideoRecordingService
+- Android 14+ compatible foreground service
+- MediaProjection foreground service type declaration
+- Notification management with recording status
+- Intent-based communication with Unity
+- Proper lifecycle management and resource cleanup
+
+### Unity Components
+
+#### IVideoRecordingService Interface
+```csharp
+public interface IVideoRecordingService : IDisposable
+{
+    RecordingState CurrentState { get; }
+    bool IsRecording { get; }
+    string? CurrentOutputFile { get; }
+    
+    event Action<RecordingState>? OnRecordingStateChanged;
+    event Action<string>? OnRecordingComplete;
+    event Action<string>? OnRecordingError;
+    
+    bool StartRecording(VideoRecordingConfig config);
+    bool StopRecording();
+    RecordingStatus GetRecordingStatus();
+}
+```
+
+#### VideoRecordingViewModel
+- UI-friendly ViewModel with UnityEvent integration
+- Recording preset management
+- Progress tracking and status display
+- Inspector-configurable settings
+
+## 🛠️ Setup and Installation
+
+### Prerequisites
+
+- **Unity 2022.3+** (tested with 2022.3.40f1)
+- **Android SDK API 29+** (MediaProjection minimum requirement)
+- **Target Android 14+** (API 34) for foreground service compatibility
+- **Java/JDK 11+** for building Android components
+
+### Environment Setup
+
+1. **Android SDK**: Using Unity's bundled SDK
+   ```
+   ANDROID_HOME=D:\dev\Softwares\Unity\2022.3.40f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK
+   ```
+
+2. **Java**: Using Unity's bundled OpenJDK
+   ```
+   JAVA_HOME=D:\dev\Softwares\Unity\2022.3.40f1\Editor\Data\PlaybackEngines\AndroidPlayer\OpenJDK
+   ```
+
+### Building the Android Library
+
+1. **Accept Android SDK licenses** (required for first build):
+   ```bash
+   %ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager.bat --licenses
+   ```
+
+2. **Build MediaProjectionLib**:
+   ```bash
+   cd MediaProjectionLib
+   gradlew.bat build
+   ```
+
+3. **Integration**: The built AAR will be automatically included in the Unity project
+
+### Unity Project Setup
+
+1. **Open QuestMediaProjection** in Unity 2022.3+
+2. **Configure Android settings**:
+   - Minimum API Level: 29
+   - Target API Level: 34
+   - Scripting Backend: IL2CPP
+   - Architecture: ARM64
+
+3. **Add VideoRecordingViewModel** to your scene
+4. **Configure ServiceContainer** with `enableVideoRecording = true`
+
+## 📱 Android Manifest Configuration
+
+The following permissions and services are automatically configured:
+
+```xml
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+<service
+  android:name="com.t34400.mediaprojectionlib.recording.VideoRecordingService"
+  android:foregroundServiceType="mediaProjection"
+  android:exported="false"
+  android:stopWithTask="false" />
+```
+
+## 🔄 Data Flow Architecture
+
+### Control Flow
+```
+Unity C# Script → JNI Bridge → Android Plugin (AAR) → Intent → Android Service
+```
+
+### Data Flow (Zero-Copy)
+```
+MediaProjection → VirtualDisplay → MediaCodec Input Surface → 
+Hardware Encoder → Encoded Buffer → MediaMuxer → MP4 File
+```
+
+### Unity Integration
+```
+VideoRecordingViewModel → VideoRecordingService → JNI Bridge → 
+VideoRecordingService (Android) → VideoRecordingManager → Native Pipeline
+```
+
+## 🎯 Performance Characteristics
+
+- **Frame Rate**: Up to 60 fps depending on device capabilities
+- **Latency**: ~16-33ms typical (1-2 frame delay)
+- **Memory Usage**: Minimal Unity heap impact due to zero-copy design
+- **CPU Usage**: Low due to hardware acceleration
+- **Storage**: Efficient H.264 compression with configurable bitrates
+
+## 🧪 Testing and Validation
+
+### Test Scenarios
+1. **Basic Recording**: Start/stop recording with default settings
+2. **Background Recording**: Verify recording continues when app is backgrounded
+3. **Quality Settings**: Test different bitrate/framerate combinations
+4. **Error Handling**: Test permission denial, storage full, etc.
+5. **Long Duration**: Extended recording sessions (>30 minutes)
+
+### Known Limitations
+- **Audio Recording**: Not yet implemented (video only)
+- **Pause/Resume**: Not implemented (stop/start required)
+- **Real-time Preview**: Current implementation optimized for file output only
+
+## 🚧 Future Enhancements
+
+### Planned Features
+- [ ] Audio recording integration with MediaRecorder
+- [ ] Pause/resume functionality
+- [ ] Real-time streaming capabilities
+- [ ] Multiple output format support (WebM, etc.)
+- [ ] Advanced encoder settings (B-frames, etc.)
+- [ ] Adaptive bitrate based on device performance
+
+### Performance Optimizations
+- [ ] Dynamic resolution scaling
+- [ ] Frame rate adaptation
+- [ ] Battery usage optimization
+- [ ] Thermal throttling management
+
+## 📚 Repository Information
+
+- **Original Projects**: Based on t-34400's MediaProjection API implementations
+- **MediaProjectionLib**: Forked from [t-34400/MediaProjectionLib](https://github.com/t-34400/MediaProjectionLib)
+- **QuestMediaProjection**: Forked from [t-34400/QuestMediaProjection](https://github.com/t-34400/QuestMediaProjection)
+- **Goal**: Extend practice implementations into a full MediaProjection + MediaCodec suite
+
+## 🤝 Contributing
+
+This project extends the excellent foundation provided by t-34400's MediaProjection implementations. Contributions are welcome for:
+
+- Performance optimizations
+- Additional codec support
+- Audio recording integration
+- Enhanced error handling
+- Documentation improvements
+
+## 📄 License
+
+This project builds upon the original work by t-34400. Please refer to the original repositories for licensing information.
+
+## 🙏 Acknowledgments
+
+- **t-34400** for the original MediaProjection API implementations
+- **Google** for MediaProjection and MediaCodec APIs
+- **Unity Technologies** for the Android development tools
+- **Meta** for Quest/VR platform support
+
+---
+
+**Note**: This implementation prioritizes performance and Android platform compliance. The zero-copy architecture ensures minimal impact on your Unity application's performance while providing professional-quality video recording capabilities.

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git submodule:*)",
+      "Bash(gradlew:*)",
+      "Bash(.gradlew.bat build)",
+      "Bash(./gradlew.bat build:*)",
+      "Bash(cmd //c:*)",
+      "Bash(copy:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
