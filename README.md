@@ -250,9 +250,9 @@ VideoRecordingService (Android) → VideoRecordingManager → Native Pipeline
 - **Log Export**: Professional session reports with system information
 
 #### **Build Automation**
-- **One-Click Builds**: Menu-driven APK generation for both targets
+- **One-Click Builds**: Menu-driven APK generation for Quest 3
 - **Build Validation**: Automatic SDK, permission, and architecture checks
-- **Target Configurations**: Optimized settings for Android Phone vs Quest 3
+- **Target Configuration**: Optimized settings for Quest 3 VR platform
 - **Unity Menu Integration**: `MediaProjection → Build Settings/Testing/Documentation`
 
 ### 🎯 **Test Scenarios Ready for Device Testing**
@@ -266,19 +266,14 @@ VideoRecordingService (Android) → VideoRecordingManager → Native Pipeline
 
 ### 📱 **Device Testing Workflow**
 ```bash
-# Android Phone
+# Quest 3 Testing
 adb devices
-# Use Unity menu: MediaProjection → Build Android Phone APK
-adb logcat | grep "VideoRecording\|MediaProjection"
-
-# Quest 3  
 # Use Unity menu: MediaProjection → Build Quest 3 APK  
 adb install -r VideoRecording_Quest3_[timestamp].apk
 adb logcat | grep "Unity\|VideoRecording"
 ```
 
 ### ⏳ **Remaining Tasks (Next Session)**
-- [ ] **Device Testing**: Real hardware validation on Android phone
 - [ ] **Quest 3 Testing**: VR environment validation with sideloading
 - [ ] **Performance Benchmarking**: Zero-copy pipeline performance metrics
 - [ ] **Optimization**: Based on real-world performance data
