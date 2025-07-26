@@ -52,7 +52,7 @@ This decoupled control flow ensures that the Unity application remains responsiv
 UnityMediaProcessing/
 ├── MediaProjectionLib/          # Android library submodule (your fork from t-34400)
 ├── QuestMediaProjection/        # Unity project submodule (your fork from t-34400)
-└── CLAUDE.md                   # This documentation file
+└── GEMINI.md                   # This documentation file
 ```
 
 ## Repository Information
