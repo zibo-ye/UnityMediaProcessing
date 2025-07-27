@@ -167,15 +167,35 @@
         app:layout_constraintTop_toBottomOf="@id/labelBitrate" />
 
     <TextView
+        android:id="@+id/labelFrameRate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Frame Rate:"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spinnerBitrate" />
+
+    <Spinner
+        android:id="@+id/spinnerFrameRate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelFrameRate" />
+
+    <TextView
         android:id="@+id/textInstructions"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Instructions:\n1. Configure codec, resolution and bitrate above\n2. Tap 'Query Available Codecs' to see hardware support\n3. Tap 'Start Recording' to begin with selected settings\n4. Switch to other apps to test screen recording\n5. Return and tap 'Stop Recording' to finish"
+        android:text="Instructions:\n1. Configure codec, resolution, bitrate and frame rate above\n2. Tap 'Query Available Codecs' to see hardware support\n3. Tap 'Start Recording' to begin with selected settings\n4. Switch to other apps to test screen recording\n5. Return and tap 'Stop Recording' to finish"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spinnerBitrate" />
+        app:layout_constraintTop_toBottomOf="@id/spinnerFrameRate" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

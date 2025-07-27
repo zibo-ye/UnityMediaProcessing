@@ -56,11 +56,13 @@ class MainActivity : AppCompatActivity() {
     data class CodecOption(val codec: VideoRecordingManager.SupportedCodec, val displayName: String)
     data class ResolutionOption(val width: Int, val height: Int, val displayName: String)
     data class BitrateOption(val bitrate: Int, val displayName: String)
+    data class FrameRateOption(val frameRate: Int, val displayName: String)
     
     // Configuration options
     private var availableCodecs = listOf<CodecOption>()
     private var availableResolutions = listOf<ResolutionOption>()
     private var availableBitrates = listOf<BitrateOption>()
+    private var availableFrameRates = listOf<FrameRateOption>()
     
     companion object {
         private const val TAG = "MainActivity"
@@ -206,12 +208,27 @@ class MainActivity : AppCompatActivity() {
             bitrateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerBitrate.adapter = bitrateAdapter
             
+            // Setup frame rate spinner
+            availableFrameRates = listOf(
+                FrameRateOption(30, "30 FPS (Standard)"),
+                FrameRateOption(36, "36 FPS (Cinema+)"),
+                FrameRateOption(60, "60 FPS (Smooth)"),
+                FrameRateOption(72, "72 FPS (VR Standard)"),
+                FrameRateOption(80, "80 FPS (High Performance)"),
+                FrameRateOption(90, "90 FPS (VR Premium)")
+            )
+            val frameRateAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
+                availableFrameRates.map { it.displayName })
+            frameRateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerFrameRate.adapter = frameRateAdapter
+            
             // Set default selections
             binding.spinnerCodec.setSelection(0) // First available codec
             binding.spinnerResolution.setSelection(2) // Usually 1920x1080
             binding.spinnerBitrate.setSelection(2) // 5 Mbps
+            binding.spinnerFrameRate.setSelection(0) // 30 FPS
             
-            Log.d(TAG, "Spinners configured with ${availableCodecs.size} codecs, ${availableResolutions.size} resolutions, ${availableBitrates.size} bitrates")
+            Log.d(TAG, "Spinners configured with ${availableCodecs.size} codecs, ${availableResolutions.size} resolutions, ${availableBitrates.size} bitrates, ${availableFrameRates.size} frame rates")
             
         } catch (e: Exception) {
             Log.e(TAG, "Error setting up spinners", e)
@@ -314,19 +331,21 @@ class MainActivity : AppCompatActivity() {
             val selectedCodec = availableCodecs.getOrNull(binding.spinnerCodec.selectedItemPosition)
             val selectedResolution = availableResolutions.getOrNull(binding.spinnerResolution.selectedItemPosition)
             val selectedBitrate = availableBitrates.getOrNull(binding.spinnerBitrate.selectedItemPosition)
+            val selectedFrameRate = availableFrameRates.getOrNull(binding.spinnerFrameRate.selectedItemPosition)
             
             // Use defaults if nothing selected
             val codec = selectedCodec?.codec?.mimeType ?: VideoRecordingManager.SupportedCodec.H264.mimeType
             val width = selectedResolution?.width ?: 1920
             val height = selectedResolution?.height ?: 1080
             val bitrate = selectedBitrate?.bitrate ?: 5_000_000
+            val frameRate = selectedFrameRate?.frameRate ?: 30
             
-            binding.textStatus.text = "Starting recording: ${width}x${height}, ${selectedBitrate?.displayName ?: "5 Mbps"}, ${selectedCodec?.displayName ?: "H.264"}"
+            binding.textStatus.text = "Starting recording: ${width}x${height}, ${selectedBitrate?.displayName ?: "5 Mbps"}, ${selectedFrameRate?.displayName ?: "30 FPS"}, ${selectedCodec?.displayName ?: "H.264"}"
             
             val serviceIntent = Intent(this, VideoRecordingService::class.java).apply {
                 action = VideoRecordingService.ACTION_START_RECORDING
                 putExtra(VideoRecordingService.EXTRA_VIDEO_BITRATE, bitrate)
-                putExtra(VideoRecordingService.EXTRA_VIDEO_FRAMERATE, 30)      // 30 fps
+                putExtra(VideoRecordingService.EXTRA_VIDEO_FRAMERATE, frameRate) // Selected frame rate
                 putExtra(VideoRecordingService.EXTRA_OUTPUT_DIRECTORY, "")     // Default
                 putExtra(VideoRecordingService.EXTRA_MAX_DURATION_MS, -1L)     // Unlimited
                 putExtra("resultCode", resultCode)
@@ -426,20 +445,26 @@ class MainActivity : AppCompatActivity() {
             val codecsText = availableCodecs.joinToString(", ") { it.displayName }
             val resolutionsText = optimalResolutions.joinToString(", ") { "${it.first}x${it.second}" }
             
-            // Get recommended bitrates for common resolutions
+            // Get recommended bitrates for common resolutions and frame rates
             val bitrateInfo = StringBuilder()
             for (res in optimalResolutions.take(3)) {
-                val bitrate = recordingManager.getRecommendedBitrate(res.first, res.second, 30)
-                val bitrateMbps = bitrate / 1_000_000
-                bitrateInfo.append("${res.first}x${res.second}: ${bitrateMbps}Mbps, ")
+                val bitrate30fps = recordingManager.getRecommendedBitrate(res.first, res.second, 30)
+                val bitrate72fps = recordingManager.getRecommendedBitrate(res.first, res.second, 72)
+                val bitrate90fps = recordingManager.getRecommendedBitrate(res.first, res.second, 90)
+                bitrateInfo.append("${res.first}x${res.second}: ${bitrate30fps/1_000_000}Mbps@30fps, ${bitrate72fps/1_000_000}Mbps@72fps, ${bitrate90fps/1_000_000}Mbps@90fps; ")
             }
+            
+            // Test frame rate presets
+            val frameRateList = availableFrameRates.joinToString(", ") { "${it.frameRate}fps" }
             
             val resultMessage = """
                 Hardware Codecs: $codecsText
                 
                 VR Resolutions: $resolutionsText
                 
-                Recommended Bitrates: ${bitrateInfo.toString().trimEnd(',', ' ')}
+                Frame Rate Presets: $frameRateList
+                
+                Recommended Bitrates: ${bitrateInfo.toString().trimEnd(',', ' ', ';')}
             """.trimIndent()
             
             binding.textStatus.text = "Codec query complete!"

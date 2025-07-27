@@ -32,27 +32,46 @@ UnityMediaProcessing/
 │       └── recording/           # New video recording components
 │           ├── VideoRecordingManager.kt    # Core recording pipeline
 │           └── VideoRecordingService.kt    # Foreground service
+├── TestMediaProjectionApp/      # Dedicated Android test application
+│   └── app/src/main/java/com/test/mediaprojectionapp/
+│       ├── MainActivity.kt      # Test UI with frame rate selection
+│       └── res/layout/          # UI layouts with spinners for all options
 ├── QuestMediaProjection/        # Unity project (forked from t-34400/QuestMediaProjection)
 │   └── Assets/MediaProjection/Scripts/
 │       ├── Interfaces/          # Service interfaces
 │       ├── Services/            # Service implementations
 │       └── ViewModels/          # UI ViewModels
+├── test_frame_rates.py         # Python UI automation script
+├── test_frame_rates.sh         # Bash UI automation script
 └── README.md                   # This file
 ```
 
 ## 🚀 Features
 
-### ✅ Implemented Features
+### ✅ Implemented Features (Current Status: 2025-01-27)
 
 - **Hardware-Accelerated Recording**: Direct GPU-to-encoder pipeline with MediaCodec
 - **Zero-Copy Performance**: No frame data passes through Unity C# layer
+- **Variable Frame Rate Support**: Configurable frame rates (30,36,60,72,80,90 FPS)
 - **Android 14+ Compatible**: Proper foreground service implementation
 - **Background Recording**: Continues recording when app is backgrounded
-- **Multiple Quality Presets**: Default, High Quality, and Performance optimized
+- **Multiple Quality Presets**: Default, High Quality, Performance, and VR optimized
+- **Quest 3 Testing**: Successfully deployed and tested on Quest 3 device
+- **TestMediaProjectionApp**: Dedicated test application with UI automation
 - **Custom Configuration**: Full control over bitrate, frame rate, and output settings
 - **Real-time Notifications**: User-visible recording status and controls
 - **Error Handling**: Comprehensive error reporting and recovery
 - **Unity Integration**: Clean C# API with UnityEvent callbacks
+
+### 🔄 Current Architecture Refactoring (IN PROGRESS)
+
+**Goal**: Make MediaProjectionLib completely consumer-agnostic and expose comprehensive configuration options.
+
+**Issues Being Addressed**:
+- Remove VR-specific assumptions from MediaProjectionLib (resolution presets, frame rate presets)
+- Expose all MediaCodec configuration options in RecordingConfig
+- Provide capability discovery APIs for consumers
+- Move application-specific presets to consumer applications (TestMediaProjectionApp, QuestMediaProjection)
 
 ### 🎮 Unity C# API
 
@@ -265,6 +284,32 @@ VideoRecordingService (Android) → VideoRecordingManager → Native Pipeline
 7. **Long Duration**: Extended recording sessions (>30 minutes)
 
 ### 📱 **Device Testing Workflow**
+
+#### **TestMediaProjectionApp (Dedicated Test App)**
+```bash
+# Build and install TestMediaProjectionApp
+cd TestMediaProjectionApp
+./gradlew assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+
+# Launch and test frame rates
+adb shell am start -n com.test.mediaprojectionapp/.MainActivity
+
+# Automated frame rate testing
+python test_frame_rates.py
+# or
+bash test_frame_rates.sh
+```
+
+**TestMediaProjectionApp Features**:
+- **Frame Rate Selection**: Dropdown with 30,36,60,72,80,90 FPS options
+- **Codec Testing**: Query and test all available hardware codecs  
+- **Resolution Options**: Multiple recording resolutions for testing
+- **Bitrate Configuration**: Various bitrate presets for quality testing
+- **Real Recording**: Actually creates MP4 files for validation
+- **UI Automation**: Scripts for automated testing of all configurations
+
+#### **Unity Quest 3 Testing**  
 ```bash
 # Quest 3 Testing
 adb devices
@@ -273,10 +318,25 @@ adb install -r VideoRecording_Quest3_[timestamp].apk
 adb logcat | grep "Unity\|VideoRecording"
 ```
 
-### ⏳ **Remaining Tasks (Next Session)**
-- [ ] **Quest 3 Testing**: VR environment validation with sideloading
-- [ ] **Performance Benchmarking**: Zero-copy pipeline performance metrics
-- [ ] **Optimization**: Based on real-world performance data
+### ⏳ **Current Todos (Architecture Refactoring)**
+
+**High Priority**:
+- [ ] **Refactor MediaProjectionLib RecordingConfig**: Expose all MediaCodec options comprehensively
+- [ ] **Remove VR Assumptions**: Move VR-specific presets from MediaProjectionLib to consumers  
+- [ ] **Capability Discovery APIs**: Implement getAvailableCodecs(), getDisplayInfo(), etc.
+- [ ] **Generic Helper Methods**: Replace VR-specific methods with device-agnostic ones
+
+**Medium Priority**:
+- [ ] **Update TestMediaProjectionApp**: Use new architecture with consumer-defined presets
+- [ ] **Update QuestMediaProjection**: Implement VR-specific presets on Unity side
+- [ ] **Rebuild and Test**: Validate refactored architecture on Quest 3
+- [ ] **Documentation Update**: Update API documentation for new architecture
+
+**Completed Recently**:
+- [x] **Quest 3 Deployment**: TestMediaProjectionApp successfully installed and working
+- [x] **Frame Rate Implementation**: Variable frame rate support (30,36,60,72,80,90 FPS)
+- [x] **UI Automation**: Test scripts created for automated frame rate validation
+- [x] **Architecture Analysis**: Identified need for consumer-agnostic design
 
 ### ✅ **Known Limitations (To Address)**
 - **Audio Recording**: Not yet implemented (video only)

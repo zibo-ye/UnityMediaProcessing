@@ -92,14 +92,38 @@ cd ../QuestMediaProjection
 - **Unity APK Build**: Uses `BuildAndroidAPK(string description)` method
 - **Output Format**: `YYYYMMDD_HHMMSS_{description}.apk` in Build folder
 
-### Recent Fixes
+### Recent Achievements
 - **ImageUtils Crash Fix**: Fixed buffer overflow in `convertToBitmap` function
 - **Automated AAR Integration**: Streamlined library-to-Unity workflow
 - **Timestamped APK Naming**: Dynamic build naming for version tracking
+- **Frame Rate Support**: Complete implementation of variable frame rate (30,36,60,72,80,90 FPS)
+- **TestMediaProjectionApp**: Functional test app with UI automation for Quest 3
+- **Quest 3 Testing**: Successfully deployed and tested on Quest 3 device
+
+### Current Status (2025-01-27)
+- ✅ **MediaProjectionLib**: Core functionality complete with frame rate support
+- ✅ **Unity Integration**: C# interfaces and services implemented
+- ✅ **Test App**: TestMediaProjectionApp deployed and working on Quest 3
+- ✅ **UI Automation**: Test scripts created for frame rate validation
+- 🔄 **Architecture Refactoring**: Currently improving MediaProjectionLib to be consumer-agnostic
+
+### Architecture Refactoring in Progress
+**Goal**: Make MediaProjectionLib completely generic and remove consumer-specific assumptions
+
+**Current Issues Identified**:
+- MediaProjectionLib contains VR-specific resolutions and frame rate presets
+- Should be consumer-agnostic and expose comprehensive configuration options
+- Consumers (TestMediaProjectionApp, QuestMediaProjection) should define their own presets
 
 ### Next Steps
 1. ✅ Accept Android SDK licenses
 2. ✅ Build and test MediaProjectionLib  
 3. ✅ Integrate with Unity project
 4. ✅ Implement Unity C# interface
-5. 🔄 Test hardware acceleration and performance on Quest 3
+5. ✅ Test hardware acceleration and performance on Quest 3
+6. 🔄 **Refactor MediaProjectionLib architecture** (IN PROGRESS)
+   - Remove VR-specific assumptions from MediaProjectionLib
+   - Expose comprehensive RecordingConfig with all MediaCodec options
+   - Provide capability discovery APIs (getAvailableCodecs, getDisplayInfo, etc.)
+   - Move presets and assumptions to consumer applications
+7. 🔄 Update TestMediaProjectionApp and QuestMediaProjection to use new architecture
