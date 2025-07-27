@@ -169,6 +169,10 @@ class MainActivity : AppCompatActivity() {
             testScreenCapture()
         }
 
+        binding.buttonQueryCodecs.setOnClickListener {
+            queryAvailableCodecs()
+        }
+
         updateUI()
     }
 
@@ -320,6 +324,54 @@ class MainActivity : AppCompatActivity() {
             binding.textStatus.text = "Screen capture test: ERROR - ${e.message}"
             showToast("Screen capture test failed: ${e.message}")
             Log.e(TAG, "Screen capture test failed", e)
+        }
+    }
+
+    /**
+     * Query and display available hardware codecs
+     */
+    private fun queryAvailableCodecs() {
+        try {
+            binding.textStatus.text = "Querying available hardware codecs..."
+            
+            // Create a VideoRecordingManager to query codecs
+            val recordingManager = VideoRecordingManager(this)
+            
+            // Get available codecs
+            val availableCodecs = recordingManager.getAvailableCodecs()
+            val optimalResolutions = recordingManager.getOptimalResolutions()
+            
+            // Build result string
+            val codecsText = availableCodecs.joinToString(", ") { it.displayName }
+            val resolutionsText = optimalResolutions.joinToString(", ") { "${it.first}x${it.second}" }
+            
+            // Get recommended bitrates for common resolutions
+            val bitrateInfo = StringBuilder()
+            for (res in optimalResolutions.take(3)) {
+                val bitrate = recordingManager.getRecommendedBitrate(res.first, res.second, 30)
+                val bitrateMbps = bitrate / 1_000_000
+                bitrateInfo.append("${res.first}x${res.second}: ${bitrateMbps}Mbps, ")
+            }
+            
+            val resultMessage = """
+                Hardware Codecs: $codecsText
+                
+                VR Resolutions: $resolutionsText
+                
+                Recommended Bitrates: ${bitrateInfo.toString().trimEnd(',', ' ')}
+            """.trimIndent()
+            
+            binding.textStatus.text = "Codec query complete!"
+            binding.textOutputPath.text = "Available Codecs: $codecsText"
+            binding.textFileInfo.text = "VR Resolutions: $resolutionsText"
+            
+            showToast("Found ${availableCodecs.size} hardware codecs")
+            Log.i(TAG, "Codec query results:\n$resultMessage")
+            
+        } catch (e: Exception) {
+            binding.textStatus.text = "Codec query failed: ${e.message}"
+            showToast("Codec query failed: ${e.message}")
+            Log.e(TAG, "Codec query failed", e)
         }
     }
 

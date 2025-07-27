@@ -43,6 +43,17 @@
         app:layout_constraintTop_toBottomOf="@id/textStatus" />
 
     <Button
+        android:id="@+id/buttonQueryCodecs"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Query Available Codecs"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonTestCapture" />
+
+    <Button
         android:id="@+id/buttonStartRecording"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -52,7 +63,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonTestCapture" />
+        app:layout_constraintTop_toBottomOf="@id/buttonQueryCodecs" />
 
     <TextView
         android:id="@+id/textOutputPath"
