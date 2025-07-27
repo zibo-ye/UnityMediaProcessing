@@ -4,6 +4,3 @@
 [submodule "QuestMediaProjection"]
 	path = QuestMediaProjection
 	url = https://github.com/zibo-ye/QuestMediaProjection.git
-[submodule "android-media-projection-sample"]
-	path = android-media-projection-sample
-	url = https://github.com/JGeraldoLima/android-media-projection-sample.git
