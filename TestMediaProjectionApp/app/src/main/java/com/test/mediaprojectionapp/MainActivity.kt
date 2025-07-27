@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -51,6 +52,16 @@ class MainActivity : AppCompatActivity() {
     private var mediaProjectionResultCode: Int = -1
     private var mediaProjectionResultData: Intent? = null
     
+    // Configuration data classes
+    data class CodecOption(val codec: VideoRecordingManager.SupportedCodec, val displayName: String)
+    data class ResolutionOption(val width: Int, val height: Int, val displayName: String)
+    data class BitrateOption(val bitrate: Int, val displayName: String)
+    
+    // Configuration options
+    private var availableCodecs = listOf<CodecOption>()
+    private var availableResolutions = listOf<ResolutionOption>()
+    private var availableBitrates = listOf<BitrateOption>()
+    
     companion object {
         private const val TAG = "MainActivity"
         private const val PERMISSION_REQUEST_CODE = 1001
@@ -78,6 +89,7 @@ class MainActivity : AppCompatActivity() {
 
         setupMediaProjectionLauncher()
         setupBroadcastReceiver()
+        setupSpinners()
         setupUI()
         checkPermissions()
         
@@ -150,6 +162,60 @@ class MainActivity : AppCompatActivity() {
                     handleRecordingError(errorMessage)
                 }
             }
+        }
+    }
+    
+    /**
+     * Setup configuration spinners
+     */
+    private fun setupSpinners() {
+        try {
+            // Create VideoRecordingManager to get configuration options
+            val recordingManager = VideoRecordingManager(this)
+            
+            // Setup codec spinner
+            val codecList = recordingManager.getAvailableCodecs()
+            availableCodecs = codecList.map { CodecOption(it, it.displayName) }
+            val codecAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, 
+                availableCodecs.map { it.displayName })
+            codecAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerCodec.adapter = codecAdapter
+            
+            // Setup resolution spinner
+            val resolutionList = recordingManager.getOptimalResolutions()
+            availableResolutions = resolutionList.map { 
+                ResolutionOption(it.first, it.second, "${it.first}x${it.second}") 
+            }
+            val resolutionAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
+                availableResolutions.map { it.displayName })
+            resolutionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerResolution.adapter = resolutionAdapter
+            
+            // Setup bitrate spinner
+            availableBitrates = listOf(
+                BitrateOption(1_000_000, "1 Mbps (Low)"),
+                BitrateOption(2_500_000, "2.5 Mbps (Medium)"),
+                BitrateOption(5_000_000, "5 Mbps (High)"),
+                BitrateOption(10_000_000, "10 Mbps (Very High)"),
+                BitrateOption(15_000_000, "15 Mbps (Ultra)"),
+                BitrateOption(25_000_000, "25 Mbps (Premium)"),
+                BitrateOption(50_000_000, "50 Mbps (Maximum)")
+            )
+            val bitrateAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
+                availableBitrates.map { it.displayName })
+            bitrateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerBitrate.adapter = bitrateAdapter
+            
+            // Set default selections
+            binding.spinnerCodec.setSelection(0) // First available codec
+            binding.spinnerResolution.setSelection(2) // Usually 1920x1080
+            binding.spinnerBitrate.setSelection(2) // 5 Mbps
+            
+            Log.d(TAG, "Spinners configured with ${availableCodecs.size} codecs, ${availableResolutions.size} resolutions, ${availableBitrates.size} bitrates")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting up spinners", e)
+            showToast("Error setting up configuration: ${e.message}")
         }
     }
     
@@ -244,16 +310,31 @@ class MainActivity : AppCompatActivity() {
      */
     private fun startVideoRecordingService(resultCode: Int, data: Intent) {
         try {
-            binding.textStatus.text = "Starting recording service..."
+            // Get selected configuration values
+            val selectedCodec = availableCodecs.getOrNull(binding.spinnerCodec.selectedItemPosition)
+            val selectedResolution = availableResolutions.getOrNull(binding.spinnerResolution.selectedItemPosition)
+            val selectedBitrate = availableBitrates.getOrNull(binding.spinnerBitrate.selectedItemPosition)
+            
+            // Use defaults if nothing selected
+            val codec = selectedCodec?.codec?.mimeType ?: VideoRecordingManager.SupportedCodec.H264.mimeType
+            val width = selectedResolution?.width ?: 1920
+            val height = selectedResolution?.height ?: 1080
+            val bitrate = selectedBitrate?.bitrate ?: 5_000_000
+            
+            binding.textStatus.text = "Starting recording: ${width}x${height}, ${selectedBitrate?.displayName ?: "5 Mbps"}, ${selectedCodec?.displayName ?: "H.264"}"
             
             val serviceIntent = Intent(this, VideoRecordingService::class.java).apply {
                 action = VideoRecordingService.ACTION_START_RECORDING
-                putExtra(VideoRecordingService.EXTRA_VIDEO_BITRATE, 5_000_000) // 5 Mbps
+                putExtra(VideoRecordingService.EXTRA_VIDEO_BITRATE, bitrate)
                 putExtra(VideoRecordingService.EXTRA_VIDEO_FRAMERATE, 30)      // 30 fps
                 putExtra(VideoRecordingService.EXTRA_OUTPUT_DIRECTORY, "")     // Default
                 putExtra(VideoRecordingService.EXTRA_MAX_DURATION_MS, -1L)     // Unlimited
                 putExtra("resultCode", resultCode)
                 putExtra("data", data)
+                // Add custom resolution and codec
+                putExtra("videoWidth", width)
+                putExtra("videoHeight", height)
+                putExtra("videoCodec", codec)
             }
             
             Log.d(TAG, "Sending permission data to service: resultCode=$resultCode, data=$data")

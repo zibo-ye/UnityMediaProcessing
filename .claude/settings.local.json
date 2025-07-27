@@ -17,7 +17,11 @@
       "Bash(cp:*)",
       "Bash(\"D:\\dev\\Softwares\\Unity\\2022.3.40f1\\Editor\\Unity.exe\" -batchmode -quit -projectPath . -buildTarget Android -executeMethod BuildScript.BuildAndroid -logFile build.log)",
       "Bash(timeout 30 tail -f build_retry.log)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(git commit:*)",
+      "Bash(claude mcp add mobile:*)",
+      "Bash(grep:*)",
+      "Bash(.gradlew.bat assembleRelease)"
     ],
     "deny": []
   }
