@@ -21,7 +21,8 @@
       "Bash(git commit:*)",
       "Bash(claude mcp add mobile:*)",
       "Bash(grep:*)",
-      "Bash(.gradlew.bat assembleRelease)"
+      "Bash(.gradlew.bat assembleRelease)",
+      "Bash(git rm:*)"
     ],
     "deny": []
   }

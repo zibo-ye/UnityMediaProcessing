@@ -364,6 +364,7 @@ adb logcat | grep "Unity\|VideoRecording"
 - **Original Projects**: Based on t-34400's MediaProjection API implementations
 - **MediaProjectionLib**: Forked from [t-34400/MediaProjectionLib](https://github.com/t-34400/MediaProjectionLib)
 - **QuestMediaProjection**: Forked from [t-34400/QuestMediaProjection](https://github.com/t-34400/QuestMediaProjection)
+- **Android 14+ Reference**: Implementation inspired by [JGeraldoLima/android-media-projection-sample](https://github.com/JGeraldoLima/android-media-projection-sample) for proper MediaProjection handling on Android 14+
 - **Goal**: Extend practice implementations into a full MediaProjection + MediaCodec suite
 
 ## 🤝 Contributing
