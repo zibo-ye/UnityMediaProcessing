@@ -48,30 +48,36 @@ UnityMediaProcessing/
 
 ## 🚀 Features
 
-### ✅ Implemented Features (Current Status: 2025-01-27)
+### ✅ Implemented Features
 
 - **Hardware-Accelerated Recording**: Direct GPU-to-encoder pipeline with MediaCodec
-- **Zero-Copy Performance**: No frame data passes through Unity C# layer
-- **Variable Frame Rate Support**: Configurable frame rates (30,36,60,72,80,90 FPS)
+- **Zero-Copy Performance**: No frame data passes through Unity C# layer  
+- **Consumer-Agnostic Architecture**: MediaProjectionLib completely generic and reusable
+- **Variable Frame Rate Support**: Configurable frame rates with OVR display frequency integration
+- **Comprehensive Codec Support**: Full MediaCodec API exposure with capability discovery
 - **Android 14+ Compatible**: Proper foreground service implementation
 - **Background Recording**: Continues recording when app is backgrounded
-- **Multiple Quality Presets**: Default, High Quality, Performance, and VR optimized
-- **Quest 3 Testing**: Successfully deployed and tested on Quest 3 device
-- **TestMediaProjectionApp**: Dedicated test application with UI automation
-- **Custom Configuration**: Full control over bitrate, frame rate, and output settings
+- **Multiple Quality Presets**: Default, High Quality, Performance, and consumer-defined presets
+- **Quest 3 VR Integration**: Specialized Quest features with OVR frame rate cycling
+- **TestMediaProjectionApp**: Dedicated test application with comprehensive automation
+- **Custom Configuration**: Full control over all MediaCodec encoder settings
 - **Real-time Notifications**: User-visible recording status and controls
-- **Error Handling**: Comprehensive error reporting and recovery
-- **Unity Integration**: Clean C# API with UnityEvent callbacks
+- **Error Handling**: Comprehensive error reporting and configuration validation
+- **Unity Integration**: Clean C# API with UnityEvent callbacks and TextMeshPro support
 
-### 🔄 Current Architecture Refactoring (IN PROGRESS)
+### ✅ Consumer-Agnostic Architecture (COMPLETED)
 
-**Goal**: Make MediaProjectionLib completely consumer-agnostic and expose comprehensive configuration options.
+**Goal Achieved**: MediaProjectionLib is now completely consumer-agnostic with comprehensive MediaCodec API exposure.
 
-**Issues Being Addressed**:
-- Remove VR-specific assumptions from MediaProjectionLib (resolution presets, frame rate presets)
-- Expose all MediaCodec configuration options in RecordingConfig
-- Provide capability discovery APIs for consumers
-- Move application-specific presets to consumer applications (TestMediaProjectionApp, QuestMediaProjection)
+**Completed Refactoring**:
+- ✅ Removed VR-specific assumptions from MediaProjectionLib core
+- ✅ Added comprehensive RecordingConfig with all MediaCodec options exposed  
+- ✅ Implemented detailed codec capability discovery APIs (getDetailedCodecInfo)
+- ✅ Added display information API with refresh rate detection
+- ✅ Replaced VR resolution presets with generic getCommonResolutions()
+- ✅ Moved VR-specific presets to QuestMediaProjection consumer
+- ✅ Enhanced configuration validation with error/warning reporting
+- ✅ Added factory methods for simplified configuration creation
 
 ### 🎮 Unity C# API
 
@@ -318,25 +324,35 @@ adb install -r VideoRecording_Quest3_[timestamp].apk
 adb logcat | grep "Unity\|VideoRecording"
 ```
 
-### ⏳ **Current Todos (Architecture Refactoring)**
+### ✅ **Architecture Refactoring Status (COMPLETED)**
 
-**High Priority**:
-- [ ] **Refactor MediaProjectionLib RecordingConfig**: Expose all MediaCodec options comprehensively
-- [ ] **Remove VR Assumptions**: Move VR-specific presets from MediaProjectionLib to consumers  
-- [ ] **Capability Discovery APIs**: Implement getAvailableCodecs(), getDisplayInfo(), etc.
-- [ ] **Generic Helper Methods**: Replace VR-specific methods with device-agnostic ones
+**Completed High Priority Items**:
+- [x] **MediaProjectionLib RecordingConfig**: All MediaCodec options comprehensively exposed
+- [x] **VR Assumptions Removed**: VR-specific presets moved from MediaProjectionLib to consumers  
+- [x] **Capability Discovery APIs**: Implemented getDetailedCodecInfo(), getDisplayInfo(), getCommonResolutions()
+- [x] **Generic Helper Methods**: Replaced VR-specific methods with device-agnostic ones
+- [x] **Configuration Validation**: Added comprehensive validation with error/warning reporting
+- [x] **Factory Methods**: Added simplified configuration creation methods
 
-**Medium Priority**:
-- [ ] **Update TestMediaProjectionApp**: Use new architecture with consumer-defined presets
-- [ ] **Update QuestMediaProjection**: Implement VR-specific presets on Unity side
-- [ ] **Rebuild and Test**: Validate refactored architecture on Quest 3
-- [ ] **Documentation Update**: Update API documentation for new architecture
+**Completed Integration Updates**:
+- [x] **TestMediaProjectionApp Updated**: Now uses new consumer-agnostic architecture
+- [x] **QuestMediaProjection Enhanced**: VR-specific presets implemented on Unity consumer side
+- [x] **OVR Integration**: Quest-specific frame rate cycling with OVR display frequency detection  
+- [x] **TextMeshPro Support**: Enhanced VR UI with proper text rendering components
+- [x] **All Tests Passing**: Architecture refactoring validated with comprehensive test suite
 
-**Completed Recently**:
-- [x] **Quest 3 Deployment**: TestMediaProjectionApp successfully installed and working
-- [x] **Frame Rate Implementation**: Variable frame rate support (30,36,60,72,80,90 FPS)
-- [x] **UI Automation**: Test scripts created for automated frame rate validation
-- [x] **Architecture Analysis**: Identified need for consumer-agnostic design
+**Latest Achievements**:
+- [x] **Complete Architecture Refactoring**: MediaProjectionLib now fully consumer-agnostic
+- [x] **Quest VR Specialization**: Quest-specific features moved to Unity consumer layer
+- [x] **Enhanced Configuration**: Comprehensive MediaCodec API exposure with validation
+- [x] **Documentation Updates**: README and CLAUDE.md updated to reflect current status
+- [x] **Comprehensive Commits**: All changes committed across submodules and root project
+
+**Next Development Phase**:
+- [ ] **Audio Recording Integration**: Add MediaRecorder audio capture capabilities
+- [ ] **Pause/Resume Functionality**: Implement recording session pause/resume
+- [ ] **Real-time Streaming**: Explore streaming capabilities beyond file output
+- [ ] **Advanced Encoder Settings**: B-frames, adaptive bitrate, thermal management
 
 ### ✅ **Known Limitations**
 
@@ -395,7 +411,9 @@ This project extends the excellent foundation provided by t-34400's MediaProject
 
 ## 📄 License
 
-This project builds upon the original work by t-34400. Please refer to the original repositories for licensing information.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+This project builds upon the original work by t-34400. Please refer to the original repositories for their respective licensing information.
 
 ## 🙏 Acknowledgments
 

@@ -102,4 +102,4 @@ cd ../QuestMediaProjection
 2. ✅ Build and test MediaProjectionLib  
 3. ✅ Integrate with Unity project
 4. ✅ Implement Unity C# interface
-5. 🔄 Test hardware acceleration and performance on Quest 3
+5. 🔄 Test hardware acceleration and performance on Quest

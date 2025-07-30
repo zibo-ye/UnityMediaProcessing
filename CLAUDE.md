@@ -97,13 +97,13 @@ cd ../QuestMediaProjection
 - **Automated AAR Integration**: Streamlined library-to-Unity workflow
 - **Timestamped APK Naming**: Dynamic build naming for version tracking
 - **Frame Rate Support**: Complete implementation of variable frame rate (30,36,60,72,80,90 FPS)
-- **TestMediaProjectionApp**: Functional test app with UI automation for Quest 3
-- **Quest 3 Testing**: Successfully deployed and tested on Quest 3 device
+- **TestMediaProjectionApp**: Functional test app with UI automation for Quest
+- **Quest Testing**: Successfully deployed and tested on Quest device
 
 ### Current Status (2025-01-27)
 - ✅ **MediaProjectionLib**: Core functionality complete with frame rate support
 - ✅ **Unity Integration**: C# interfaces and services implemented
-- ✅ **Test App**: TestMediaProjectionApp deployed and working on Quest 3
+- ✅ **Test App**: TestMediaProjectionApp deployed and working on Quest
 - ✅ **UI Automation**: Test scripts created for frame rate validation
 - 🔄 **Architecture Refactoring**: Currently improving MediaProjectionLib to be consumer-agnostic
 
@@ -120,7 +120,7 @@ cd ../QuestMediaProjection
 2. ✅ Build and test MediaProjectionLib  
 3. ✅ Integrate with Unity project
 4. ✅ Implement Unity C# interface
-5. ✅ Test hardware acceleration and performance on Quest 3
+5. ✅ Test hardware acceleration and performance on Quest
 6. 🔄 **Refactor MediaProjectionLib architecture** (IN PROGRESS)
    - Remove VR-specific assumptions from MediaProjectionLib
    - Expose comprehensive RecordingConfig with all MediaCodec options

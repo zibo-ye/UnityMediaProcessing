@@ -55,9 +55,9 @@
 MediaProjection/
 ├── Build Settings/
 │   ├── Configure for Android Phone  
-│   ├── Configure for Quest 3
+│   ├── Configure for Quest
 │   ├── Build Android Phone APK
-│   └── Build Quest 3 APK
+│   └── Build Quest APK
 ├── Testing/
 │   ├── Run Unit Tests
 │   └── Export Debug Logs
@@ -69,7 +69,7 @@ MediaProjection/
 **Features:**
 - **One-Click Builds**: Automated APK generation for both targets
 - **Build Validation**: SDK versions, permissions, architecture checks
-- **Target Optimization**: Android Phone vs Quest 3 specific settings
+- **Target Optimization**: Android Phone vs Quest specific settings
 - **Error Reporting**: Detailed build failure analysis
 
 ## 📊 **Testing Statistics**
@@ -91,7 +91,7 @@ MediaProjection/
 - **Unity Integration**: Full C# API with ViewModels and events
 - **Comprehensive Testing**: 40+ tests covering all components
 - **Professional Debugging**: Production-ready logging system
-- **Build Automation**: One-click builds for both Android Phone and Quest 3
+- **Build Automation**: One-click builds for both Android Phone and Quest
 - **Documentation**: Complete README with architecture and usage
 
 ### **🔧 Built & Tested**
@@ -108,9 +108,9 @@ MediaProjection/
 4. **Install & Monitor**: `adb logcat | grep "VideoRecording\|MediaProjection"`
 5. **Run Tests**: Use automated test controller or manual testing
 
-### **Quest 3 Testing Workflow**
+### **Quest Testing Workflow**
 1. **Enable Developer Mode** in Meta Quest Developer Hub
-2. **Build VR APK**: Use Unity menu `MediaProjection → Build Quest 3 APK`
+2. **Build VR APK**: Use Unity menu `MediaProjection → Build Quest APK`
 3. **Sideload**: `adb install -r VideoRecording_Quest3_[timestamp].apk`
 4. **Monitor Logs**: `adb logcat | grep "Unity\|VideoRecording"`
 5. **VR Validation**: Test in VR environment with recording
@@ -126,7 +126,7 @@ MediaProjection/
 
 ### **High Priority**
 - [ ] **Android Phone Testing**: Real hardware validation with USB debugging
-- [ ] **Quest 3 Testing**: VR environment testing with sideloading
+- [ ] **Quest Testing**: VR environment testing with sideloading
 - [ ] **Zero-Copy Performance**: Validate pipeline performance metrics
 
 ### **Medium Priority**  
