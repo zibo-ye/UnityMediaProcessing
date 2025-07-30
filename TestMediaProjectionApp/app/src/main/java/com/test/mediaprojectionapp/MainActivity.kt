@@ -83,6 +83,61 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_OUTPUT_PATH = "extra_output_path"
         const val EXTRA_ERROR_MESSAGE = "extra_error_message"
     }
+    
+    /**
+     * Test app specific resolutions for comprehensive testing
+     */
+    private fun getTestResolutions(): List<Pair<Int, Int>> {
+        return listOf(
+            // 4K and high resolutions
+            Pair(3840, 2160), // 4K UHD
+            Pair(2560, 1440), // QHD
+            
+            // Standard resolutions
+            Pair(1920, 1080), // FHD
+            Pair(1280, 720),  // HD
+            Pair(854, 480),   // 480p
+            
+            // VR-specific resolutions for testing
+            Pair(3840, 2160), // 4K UHD - Premium VR quality
+            Pair(2048, 1024), // High-res ultra-wide VR (2:1)
+            Pair(1024, 512),  // Ultra-wide VR (2:1 aspect ratio)
+            
+            // Ultra-wide resolutions
+            Pair(3440, 1440), // Ultra-wide QHD
+            Pair(2560, 1080), // Ultra-wide FHD
+            
+            // Square resolutions for testing
+            Pair(1440, 1440), // 1:1 aspect ratio
+            Pair(1080, 1080)  // 1:1 aspect ratio (lower res)
+        ).distinct()
+    }
+    
+    /**
+     * Test app specific frame rates including VR and high refresh rates
+     */
+    private fun getTestFrameRates(deviceFrameRates: List<Int>): List<FrameRateOption> {
+        // Test app specific frame rates for comprehensive testing
+        val testFrameRates = listOf(
+            FrameRateOption(24, "24 FPS (Cinema)"),
+            FrameRateOption(25, "25 FPS (PAL)"),
+            FrameRateOption(30, "30 FPS (Standard)"),
+            FrameRateOption(36, "36 FPS (Cinema+)"),
+            FrameRateOption(48, "48 FPS (High Cinema)"),
+            FrameRateOption(50, "50 FPS (PAL High)"),
+            FrameRateOption(60, "60 FPS (Smooth)"),
+            FrameRateOption(72, "72 FPS (VR Standard)"),
+            FrameRateOption(80, "80 FPS (High Performance)"),
+            FrameRateOption(90, "90 FPS (VR Premium)"),
+            FrameRateOption(120, "120 FPS (Ultra High)")
+        )
+        
+        // Filter to only include frame rates supported by the device
+        return testFrameRates.filter { testRate ->
+            deviceFrameRates.contains(testRate.frameRate) || 
+            testRate.frameRate <= 60 // Always include basic rates
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -183,8 +238,8 @@ class MainActivity : AppCompatActivity() {
             codecAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerCodec.adapter = codecAdapter
             
-            // Setup resolution spinner
-            val resolutionList = recordingManager.getOptimalResolutions()
+            // Setup resolution spinner with test app specific resolutions
+            val resolutionList = getTestResolutions()
             availableResolutions = resolutionList.map { 
                 ResolutionOption(it.first, it.second, "${it.first}x${it.second}") 
             }
@@ -208,15 +263,9 @@ class MainActivity : AppCompatActivity() {
             bitrateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerBitrate.adapter = bitrateAdapter
             
-            // Setup frame rate spinner
-            availableFrameRates = listOf(
-                FrameRateOption(30, "30 FPS (Standard)"),
-                FrameRateOption(36, "36 FPS (Cinema+)"),
-                FrameRateOption(60, "60 FPS (Smooth)"),
-                FrameRateOption(72, "72 FPS (VR Standard)"),
-                FrameRateOption(80, "80 FPS (High Performance)"),
-                FrameRateOption(90, "90 FPS (VR Premium)")
-            )
+            // Setup frame rate spinner with test app specific rates
+            val availableFrameRatesFromDevice = recordingManager.getAvailableFrameRates()
+            availableFrameRates = getTestFrameRates(availableFrameRatesFromDevice)
             val frameRateAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
                 availableFrameRates.map { it.displayName })
             frameRateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -439,19 +488,19 @@ class MainActivity : AppCompatActivity() {
             
             // Get available codecs
             val availableCodecs = recordingManager.getAvailableCodecs()
-            val optimalResolutions = recordingManager.getOptimalResolutions()
+            val commonResolutions = recordingManager.getCommonResolutions()
             
             // Build result string
             val codecsText = availableCodecs.joinToString(", ") { it.displayName }
-            val resolutionsText = optimalResolutions.joinToString(", ") { "${it.first}x${it.second}" }
+            val resolutionsText = commonResolutions.take(5).joinToString(", ") { "${it.first}x${it.second}" }
             
             // Get recommended bitrates for common resolutions and frame rates
             val bitrateInfo = StringBuilder()
-            for (res in optimalResolutions.take(3)) {
+            for (res in commonResolutions.take(3)) {
                 val bitrate30fps = recordingManager.getRecommendedBitrate(res.first, res.second, 30)
-                val bitrate72fps = recordingManager.getRecommendedBitrate(res.first, res.second, 72)
+                val bitrate60fps = recordingManager.getRecommendedBitrate(res.first, res.second, 60)
                 val bitrate90fps = recordingManager.getRecommendedBitrate(res.first, res.second, 90)
-                bitrateInfo.append("${res.first}x${res.second}: ${bitrate30fps/1_000_000}Mbps@30fps, ${bitrate72fps/1_000_000}Mbps@72fps, ${bitrate90fps/1_000_000}Mbps@90fps; ")
+                bitrateInfo.append("${res.first}x${res.second}: ${bitrate30fps/1_000_000}Mbps@30fps, ${bitrate60fps/1_000_000}Mbps@60fps, ${bitrate90fps/1_000_000}Mbps@90fps; ")
             }
             
             // Test frame rate presets
@@ -460,7 +509,7 @@ class MainActivity : AppCompatActivity() {
             val resultMessage = """
                 Hardware Codecs: $codecsText
                 
-                VR Resolutions: $resolutionsText
+                Common Resolutions: $resolutionsText
                 
                 Frame Rate Presets: $frameRateList
                 
@@ -469,7 +518,7 @@ class MainActivity : AppCompatActivity() {
             
             binding.textStatus.text = "Codec query complete!"
             binding.textOutputPath.text = "Available Codecs: $codecsText"
-            binding.textFileInfo.text = "VR Resolutions: $resolutionsText"
+            binding.textFileInfo.text = "Common Resolutions: $resolutionsText"
             
             showToast("Found ${availableCodecs.size} hardware codecs")
             Log.i(TAG, "Codec query results:\n$resultMessage")

@@ -338,7 +338,23 @@ adb logcat | grep "Unity\|VideoRecording"
 - [x] **UI Automation**: Test scripts created for automated frame rate validation
 - [x] **Architecture Analysis**: Identified need for consumer-agnostic design
 
-### ✅ **Known Limitations (To Address)**
+### ✅ **Known Limitations**
+
+#### **Quest 3 Hardware Limitations**
+- **Multi-Layer Frame Rate Constraints**: Quest 3 has cascading frame rate limitations at multiple levels:
+  - **MediaCodec Level**: Correctly configured (e.g., 72 FPS) ✅
+  - **VirtualDisplay Level**: Limited to 60 Hz regardless of MediaCodec settings ⚠️
+  - **Hardware Encoder Level**: Final MP4 output capped at ~30 FPS (avg_frame_rate ≈ 29.97) ❌
+- **Root Cause**: VirtualDisplay API only exposes single 60 Hz mode, and hardware encoder further reduces output to 30 FPS
+- **Diagnostic Evidence**: 
+  ```
+  MediaFormat KEY_FRAME_RATE: 72        ← Correctly configured
+  VirtualDisplay Refresh Rate: 60.0 Hz  ← Hardware limitation
+  MP4 avg_frame_rate: 29.97 FPS         ← Final output limitation
+  ```
+- **Workaround**: For Quest 3 users, expect 30 FPS video output regardless of frame rate selection
+
+#### **Implementation Limitations**
 - **Audio Recording**: Not yet implemented (video only)
 - **Pause/Resume**: Not implemented (stop/start required)  
 - **Real-time Preview**: Current implementation optimized for file output only
