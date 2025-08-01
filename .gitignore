@@ -1,7 +1,10 @@
 **/.gradle/
 **/app/build/
 **/build/
-**/gradle/
+
+# Gradle cache but keep wrapper
+gradle/
+!gradle/wrapper/
 Scripts/Logs/
 recordings/
 .claude/
